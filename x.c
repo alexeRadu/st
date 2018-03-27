@@ -1883,53 +1883,63 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
+	int i;
+	int brk;
+
 	xw.l = xw.t = 0;
 	xw.isfixed = False;
 	win.cursor = cursorshape;
+	argv0 = *argv;
+	argv++;
+	argc--;
 
-	ARGBEGIN {
-	case 'a':
-		allowaltscreen = 0;
-		break;
-	case 'c':
-		opt_class = EARGF(usage());
-		break;
-	case 'e':
-		if (argc > 0)
-			--argc, ++argv;
-		goto run;
-	case 'f':
-		opt_font = EARGF(usage());
-		break;
-	case 'g':
-		xw.gm = XParseGeometry(EARGF(usage()),
-				&xw.l, &xw.t, &cols, &rows);
-		break;
-	case 'i':
-		xw.isfixed = 1;
-		break;
-	case 'o':
-		opt_io = EARGF(usage());
-		break;
-	case 'l':
-		opt_line = EARGF(usage());
-		break;
-	case 'n':
-		opt_name = EARGF(usage());
-		break;
-	case 't':
-	case 'T':
-		opt_title = EARGF(usage());
-		break;
-	case 'w':
-		opt_embed = EARGF(usage());
-		break;
-	case 'v':
-		die("%s " VERSION " (c) 2010-2016 st engineers\n", argv0);
-		break;
-	default:
-		usage();
-	} ARGEND;
+	for ( ;argv[0] && argv[0][0] == '-' && argv[0][1]; argc--, argv++) {
+		for (i = 1, brk = 0; argv[0][i] && !brk; i++) {
+			switch (argv[0][i]) {
+			case 'a':
+				allowaltscreen = 0;
+				break;
+			case 'c':
+				opt_class = EARGF(usage());
+				break;
+			case 'e':
+				if (argc > 0)
+					--argc, ++argv;
+				goto run;
+			case 'f':
+				opt_font = EARGF(usage());
+				break;
+			case 'g':
+				xw.gm = XParseGeometry(EARGF(usage()),
+						&xw.l, &xw.t, &cols, &rows);
+				break;
+			case 'i':
+				xw.isfixed = 1;
+				break;
+			case 'o':
+				opt_io = EARGF(usage());
+				break;
+			case 'l':
+				opt_line = EARGF(usage());
+				break;
+			case 'n':
+				opt_name = EARGF(usage());
+				break;
+			case 't':
+			case 'T':
+				opt_title = EARGF(usage());
+				break;
+			case 'w':
+				opt_embed = EARGF(usage());
+				break;
+			case 'v':
+				die("%s " VERSION " (c) 2010-2016 st engineers\n", argv0);
+				break;
+			default:
+				usage();
+			}
+		}
+	}
 
 run:
 	if (argc > 0) /* eat all remaining arguments */
