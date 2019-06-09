@@ -1911,8 +1911,9 @@ int main(int argc, char *argv[])
 				opt_font = EARGF(usage());
 				break;
 			case 'g':
-				xw.gm = XParseGeometry(EARGF(usage()),
-						&xw.l, &xw.t, &cols, &rows);
+				xw.gm = XParseGeometry(EARGF(usage()), &xw.l, &xw.t, &cols, &rows);
+				cols = MAX(cols, 1);
+				rows = MAX(rows, 1);
 				break;
 			case 'i':
 				xw.isfixed = 1;
@@ -1951,10 +1952,10 @@ run:
 
 	setlocale(LC_CTYPE, "");
 	XSetLocaleModifiers("");
-	cols = MAX(cols, 1);
-	rows = MAX(rows, 1);
+
 	tnew(cols, rows);
 	xinit(cols, rows);
+
 	xsetenv();
 	selinit();
 	run();
