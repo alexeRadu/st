@@ -1867,69 +1867,88 @@ run(void)
 	}
 }
 
-void
-usage(void)
+void usage(void)
 {
-	die("usage: %s [-aiv] [-c class] [-f font] [-g geometry]"
-	    " [-n name] [-o file]\n"
-	    "          [-T title] [-t title] [-w windowid]"
-	    " [[-e] command [args ...]]\n"
-	    "       %s [-aiv] [-c class] [-f font] [-g geometry]"
-	    " [-n name] [-o file]\n"
-	    "          [-T title] [-t title] [-w windowid] -l line"
-	    " [stty_args ...]\n", argv0, argv0);
+	die("usage: %s [-aiv] [-c class] [-f font] [-g geometry] [-n name] [-o file]\n"
+	    "          [-T title] [-t title] [-w windowid] [[-e] command [args ...]]\n"
+	    "       %s [-aiv] [-c class] [-f font] [-g geometry] [-n name] [-o file]\n"
+	    "          [-T title] [-t title] [-w windowid] -l line [stty_args ...]\n",
+	    argv0, argv0);
 }
 
-int
-main(int argc, char *argv[])
+#define NEXT_ARG()	argv++, argc--
+
+int main(int argc, char *argv[])
 {
 	xw.l = xw.t = 0;
 	xw.isfixed = False;
 	win.cursor = cursorshape;
 
-	ARGBEGIN {
-	case 'a':
-		allowaltscreen = 0;
-		break;
-	case 'c':
-		opt_class = EARGF(usage());
-		break;
-	case 'e':
-		if (argc > 0)
-			--argc, ++argv;
-		goto run;
-	case 'f':
-		opt_font = EARGF(usage());
-		break;
-	case 'g':
-		xw.gm = XParseGeometry(EARGF(usage()),
-				&xw.l, &xw.t, &cols, &rows);
-		break;
-	case 'i':
-		xw.isfixed = 1;
-		break;
-	case 'o':
-		opt_io = EARGF(usage());
-		break;
-	case 'l':
-		opt_line = EARGF(usage());
-		break;
-	case 'n':
-		opt_name = EARGF(usage());
-		break;
-	case 't':
-	case 'T':
-		opt_title = EARGF(usage());
-		break;
-	case 'w':
-		opt_embed = EARGF(usage());
-		break;
-	case 'v':
-		die("%s " VERSION " (c) 2010-2016 st engineers\n", argv0);
-		break;
-	default:
-		usage();
-	} ARGEND;
+	/* save program name in argv0 */
+	argv0 = *argv;
+	NEXT_ARG();
+
+	for (; argv[0] && argv[0][0] == '-' && argv[0][1]; NEXT_ARG()) {
+		char argc_;
+		char **argv_;
+		int brk_;
+
+		if (argv[0][1] == '-' && argv[0][2] == '\0') {
+			NEXT_ARG();
+			break;
+		}
+
+		for (int i_ = 1, brk_ = 0, argv_ = argv; argv[0][i_] && !brk_; i_++) {
+			if (argv_ != argv)
+				break;
+
+			argc_ = argv[0][i_];
+
+			switch (argc_) {
+			case 'a':
+				allowaltscreen = 0;
+				break;
+			case 'c':
+				opt_class = EARGF(usage());
+				break;
+			case 'e':
+				if (argc > 0)
+					--argc, ++argv;
+				goto run;
+			case 'f':
+				opt_font = EARGF(usage());
+				break;
+			case 'g':
+				xw.gm = XParseGeometry(EARGF(usage()),
+						&xw.l, &xw.t, &cols, &rows);
+				break;
+			case 'i':
+				xw.isfixed = 1;
+				break;
+			case 'o':
+				opt_io = EARGF(usage());
+				break;
+			case 'l':
+				opt_line = EARGF(usage());
+				break;
+			case 'n':
+				opt_name = EARGF(usage());
+				break;
+			case 't':
+			case 'T':
+				opt_title = EARGF(usage());
+				break;
+			case 'w':
+				opt_embed = EARGF(usage());
+				break;
+			case 'v':
+				die("%s " VERSION " (c) 2010-2016 st engineers\n", argv0);
+				break;
+			default:
+				usage();
+			}
+		}
+	}
 
 run:
 	if (argc > 0) /* eat all remaining arguments */
