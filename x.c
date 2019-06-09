@@ -1876,8 +1876,6 @@ void usage(void)
 	    argv0, argv0);
 }
 
-#define NEXT_ARG()	argv++, argc--
-
 int main(int argc, char *argv[])
 {
 	xw.l = xw.t = 0;
@@ -1888,23 +1886,17 @@ int main(int argc, char *argv[])
 	argv0 = *argv;
 	NEXT_ARG();
 
-	for (; argv[0] && argv[0][0] == '-' && argv[0][1]; NEXT_ARG()) {
-		char argc_;
-		char **argv_;
-		int brk_;
+	for (;argv[0] && argv[0][0] == '-' && argv[0][1]; NEXT_ARG()) {
+		int brk;
+		int i;
 
 		if (argv[0][1] == '-' && argv[0][2] == '\0') {
 			NEXT_ARG();
 			break;
 		}
 
-		for (int i_ = 1, brk_ = 0, argv_ = argv; argv[0][i_] && !brk_; i_++) {
-			if (argv_ != argv)
-				break;
-
-			argc_ = argv[0][i_];
-
-			switch (argc_) {
+		for (i = 1, brk = 0; argv[0][i] && !brk; i++) {
+			switch (argv[0][i]) {
 			case 'a':
 				allowaltscreen = 0;
 				break;
@@ -1913,7 +1905,7 @@ int main(int argc, char *argv[])
 				break;
 			case 'e':
 				if (argc > 0)
-					--argc, ++argv;
+					NEXT_ARG();
 				goto run;
 			case 'f':
 				opt_font = EARGF(usage());
